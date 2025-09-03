@@ -1,0 +1,20 @@
+{{- range .Values.activeDirectory.domainControllers }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}-winrm
+  labels:
+    app.kubernetes.io/part-of: active-directory
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  selector:
+    kubevirt.io/domain: {{ .name }}
+  ports:
+    - name: winrm
+      protocol: TCP
+      port: 5985
+      targetPort: 5985
+{{- end }}
+

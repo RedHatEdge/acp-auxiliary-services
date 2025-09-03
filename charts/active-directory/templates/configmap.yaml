@@ -1,0 +1,256 @@
+{{- with .Values.activeDirectory }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configure-controller-inventory
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  inventory.yml: |
+    ---
+    all:
+      children:
+        aap:
+          hosts:
+            it_automation_service:
+              {{- with .itAutomationService }}
+              aap_hostname: {{ .hostname }}
+              aap_username: {{ .username }}
+              aap_validate_certs: 'false'
+              ansible_connection: local
+              {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configure-controller-variables
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  organizations.yml: |
+    ---
+    aap_organizations:
+      - name: {{ .itAutomationService.organization }}
+
+  credentials.yml: |
+    ---
+    controller_credentials:
+      - name: "Provisioning Machine Login"
+        organization: {{ .itAutomationService.organization }}
+        credential_type: Machine
+        inputs:
+          {{- with .vmTemplate }}
+          username: {{ quote .username }}
+          password: {{ quote .password }}
+          {{- end }}
+      - name: "Domain Administrator"
+        organization: {{ .itAutomationService.organization }}
+        credential_type: Machine
+        inputs:
+          {{- with .domainSettings }}
+          username: '{{ .netbiosName }}\Administrator'
+          password: {{ quote .adminPassword }}
+          {{- end }}
+  projects.yml: |
+    ---
+    controller_projects:
+      - name: "Active Directory Automation"
+        organization: {{ .itAutomationService.organization }}
+        scm_type: git
+        scm_url: https://github.com/RedHatEdge/acp-auxiliary-services.git
+        update_project: true
+
+  inventories.yml: |
+    ---
+    controller_inventories:
+      - name: "Active Directory Infrastructure"
+        organization: {{ .itAutomationService.organization }}
+        variables:
+          ansible_connection: winrm
+          ansible_winrm_transport: ntlm
+          ansible_winrm_server_cert_validation: ignore
+          ansible_winrm_port: 5985
+          active_directory:
+            {{- with .domainSettings }}
+            dns_domain_name: {{ .dnsDomainName }}
+            domain_netbios_name: {{ .netbiosName }}
+            {{- end }}
+            domain_controller_ips:
+              {{- range .domainControllers }}
+              - {{ .bridgeInterface.ipAddress }}
+              {{- end }}
+
+  hosts.yml: |
+    ---
+    controller_hosts:
+      {{- range .domainControllers }}
+      - name: {{ .name }}
+        inventory: Active Directory Infrastructure
+        organization: {{ $.Values.activeDirectory.itAutomationService.organization }}
+        extra_vars:
+          ansible_host: {{ .ipAddress }}
+          bridge_interface:
+            {{- with .bridgeInterface }}
+            name: {{ quote .name }}
+            ip_address: {{ .ipAddress }}
+            subnet_mask: {{ .subnetMask }}
+            gateway: {{ .gateway }}
+            dns_servers: {{ quote .dnsServers }}
+            {{- end }}
+      {{- end }}
+  groups.yml: |
+    ---
+    controller_groups:
+      - name: primary_domain_controller
+        organization: {{ .itAutomationService.organization }}
+        inventory: "Active Directory Infrastructure"
+        hosts:
+          {{- range .domainControllers }}
+          {{- if .primaryDomainController }}
+          - {{ .name }}
+          {{- end }}
+          {{- end }}
+      - name: domain_controllers
+        organization: {{ .itAutomationService.organization }}
+        inventory: "Active Directory Infrastructure"
+        hosts:
+          {{- range .domainControllers }}
+          {{- if not .primaryDomainController }}
+          - {{ .name }}
+          {{- end }}
+          {{- end }}
+  job-templates.yml: |
+    ---
+    controller_templates:
+      - name: Test Connectivity
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - Provisioning Machine Login
+        playbook: playbooks/active-directory/test-connectivity.yml
+      - name: Set Base Configurations
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - Provisioning Machine Login
+        playbook: playbooks/active-directory/set-base-configs.yml
+      - name: Wait for Connectivity
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - Provisioning Machine Login
+        playbook: playbooks/active-directory/wait-for-connectivity.yml
+      - name: Create AD Forest
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - Provisioning Machine Login
+        playbook: playbooks/active-directory/create-ad-forest.yml
+        limit: primary_domain_controller
+      - name: Promote Domain Controller
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - Provisioning Machine Login
+        playbook: playbooks/active-directory/promote-domain-controller.yml
+        limit: 'domain_controllers:!primary_domain_controller'
+      - name: Configure Domain Controllers
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - "Domain Administrator"
+        playbook: playbooks/active-directory/configure-domain-controllers.yml
+      - name: Create 62443-3-3 GPO
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - "Domain Administrator"
+        playbook: playbooks/active-directory/62443-3-3-gpo.yml
+        limit: primary_domain_controller
+      - name: Populate Active Directory
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - "Domain Administrator"
+        playbook: playbooks/active-directory/populate-active-directory.yml
+        limit: primary_domain_controller
+      - name: Configure AD DNS
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - "Domain Administrator"
+        playbook: playbooks/active-directory/configure-ad-dns.yml
+      - name: Link 62443-3-3 GPO to OU
+        organization: {{ .itAutomationService.organization }}
+        project: "Active Directory Automation"
+        inventory: "Active Directory Infrastructure"
+        credentials:
+          - "Domain Administrator"
+        playbook: playbooks/active-directory/link-gpo-to-ou.yml
+        limit: primary_domain_controller
+
+  workflows.yml: |
+    ---
+    controller_workflows:
+      - name: Setup AD Forest
+        organization: {{ .itAutomationService.organization }}
+        simplified_workflow_nodes:
+          - identifier: Wait for Connectivity
+            unified_job_template: Wait for Connectivity
+            success_nodes:
+              - Set Base Configurations
+          - identifier: Set Base Configurations
+            unified_job_template: Set Base Configurations
+            success_nodes:
+              - Create AD Forest
+          - identifier: Create AD Forest
+            unified_job_template: Create AD Forest
+            success_nodes:
+              - Promote Domain Controller
+          - identifier: Promote Domain Controller
+            unified_job_template: Promote Domain Controller
+            success_nodes:
+              - Configure Domain Controllers
+          - identifier: Configure Domain Controllers
+            unified_job_template: Configure Domain Controllers
+            success_nodes:
+              - Create 62443-3-3 GPO
+              - Populate Active Directory
+              - Configure AD DNS
+          - identifier: Create 62443-3-3 GPO
+            unified_job_template: Create 62443-3-3 GPO
+            success_nodes:
+              - Link 62443-3-3 GPO to OU
+          - identifier: Populate Active Directory
+            unified_job_template: Populate Active Directory
+            success_nodes:
+              - Link 62443-3-3 GPO to OU
+          - identifier: Configure AD DNS
+            unified_job_template: Configure AD DNS
+          - identifier: Link 62443-3-3 GPO to OU
+            unified_job_template: Link 62443-3-3 GPO to OU
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: initiate-controller-workflows
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+data:
+  controller_workflow_launch_jobs.yml: |
+    ---
+    controller_workflow_launch_jobs:
+      - name: Setup AD Forest
+        organization: {{ .itAutomationService.organization }}
+        wait: true
+{{- end }}

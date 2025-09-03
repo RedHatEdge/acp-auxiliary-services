@@ -1,0 +1,76 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: setup-controller-
+  namespace: 
+  annotations:
+    argocd.argoproj.io/hook: Sync
+spec:
+  backoffLimit: 20
+  template:
+    spec:
+      containers:
+        - name: configure-controller
+          image: quay.io/jswanson/configure-aap:2.5
+          volumeMounts:
+            - name: inventory
+              mountPath: /runner/inventory
+            - name: variables
+              mountPath: /runner/variables
+            - name: ansible-tmp
+              mountPath: /.ansible/tmp
+            - name: ansible-async
+              mountPath: /.ansible_async
+          command: ["/usr/local/bin/ansible-playbook"]
+          args:
+            - playbooks/configure-controller.yml
+            - --inventory=inventory
+            - -vv
+          env:
+            - name: AAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aap-admin-password
+                  key: password
+      restartPolicy: OnFailure
+      volumes:
+        - name: inventory
+          configMap:
+            name: setup-controller-inventory
+        - name: variables
+          configMap:
+            name: setup-controller-variables
+        - name: ansible-tmp
+          emptyDir:
+            sizeLimit: 100Mi
+        - name: ansible-async
+          emptyDir:
+            sizeLimit: 100Mi
+# ---            
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   generateName: run-automation-in-controller-
+#   namespace: {{ $.Values.namespace }}
+#   annotations:
+#     argocd.argoproj.io/hook: PostSync
+# spec:
+#   template:
+#     spec:
+#       containers:
+#         - name: launch-automation
+#           image: quay.io/jswanson/configure-controller:1.0.6
+#           volumeMounts:
+#             - name: automation-to-run-vars
+#               mountPath: /runner/variables
+#             - name: tmp
+#               mountPath: /tmp
+#       restartPolicy: Never
+#       volumes:
+#         - name: automation-to-run-vars
+#           configMap:
+#             name: automation-to-run-configmap
+#         - name: tmp
+#           emptyDir:
+#             sizeLimit: 100Mi
