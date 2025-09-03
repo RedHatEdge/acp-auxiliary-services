@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configure-controller-inventory
+  name: setup-controller-inventory
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 data:
@@ -24,7 +24,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configure-controller-variables
+  name: setup-controller-variables
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 data:
