@@ -1,0 +1,76 @@
+---
+
+- name: Populate AD with OUs, Users, and Groups
+  hosts:
+    - all
+  vars:
+    ad_objects:
+      organizational_units:
+        - name: IndustrialSoftware
+        - name: Areas
+          path: "OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Roles
+          path: "OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Users
+          path: "OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+      groups:
+        - name: Area01_Basic
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area01_Advanced
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area02_Basic
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area02_Advanced
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area03_Basic
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area03_Advanced
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area04_Basic
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area04_Advanced
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area05_Basic
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Area05_Advanced
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Operators
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Operating Supervisors
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Maintenance
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Maintenance Supervisors
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Manager
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Engineering
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: Software Administrator
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+        - name: HMI Approver
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+  tasks:
+    - name: Create organizational units
+      microsoft.ad.ou:
+        name: "{{ ou.name }}"
+        path: "{{ ou.path | default(omit) }}"
+        state: "{{ ou.state | default('present') }}"
+        protect_from_deletion: "{{ ou.prorect_from_deletion | default(true) }}"
+      loop: "{{ ad_objects.organizational_units }}"
+      loop_control:
+        loop_var: ou
+      when:
+        - ad_objects.organizational_units is defined
+
+    - name: Create groups
+      microsoft.ad.group:
+        name: "{{ group.name }}"
+        scope: "{{ group.scope | default('global') }}"
+        path: "{{ group.path | default(omit) }}"
+        state: "{{ group.state | default('present') }}"
+      loop: "{{ ad_objects.groups }}"
+      loop_control:
+        loop_var: group
+      when:
+        - ad_objects.groups is defined

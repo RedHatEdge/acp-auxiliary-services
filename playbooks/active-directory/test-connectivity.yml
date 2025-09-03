@@ -1,0 +1,9 @@
+---
+
+- name: Test connectivity to Windows systems
+  hosts:
+    - all
+  gather_facts: false
+  tasks:
+    - name: Try gathering facts
+      ansible.builtin.setup:

@@ -1,0 +1,170 @@
+---
+- name: Create GPO for 62443-3-3
+  hosts:
+    - all
+  vars:
+    gpo_registry_values:
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: MinimumPasswordLength
+        value: 12
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: PasswordComplexity
+        value: 1
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: MaximumPasswordAge
+        value: 60
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: EnforcePasswordHistory
+        value: 24
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: LockoutBadCount
+        value: 5
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: LockoutDuration
+        value: 15
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: ResetLockoutCount
+        value: 15
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: MaxServiceAge
+        value: 600
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: MaxTicketAge
+        value: 600
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: MaxRenewAge
+        value: 604800
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWORD
+        value_name: MaxClockSkew
+        value: 300
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: MultiString
+        value_name: SeDenyInteractiveLogonRight
+        value: Guest
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: MultiString
+        value_name: SeDenyNetworkLogonRight
+        value: Guest
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWord
+        value_name: EnableLUA
+        value: 1
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWord
+        value_name: ConsentPromptBehaviorAdmin
+        value: 2
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWord
+        value_name: EnableSMBSigning
+        value: 1
+      - gpo_name: 62443-3-3
+        key: HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+        type: DWord
+        value_name: LDAPServerSigningRequirements
+        value: 2
+  tasks:
+    - name: Create GPO
+      ansible.windows.win_shell: New-GPO -Name "62443-3-3"
+      register: _create_gpo
+      changed_when:
+        - "'62443-3-3' in _create_gpo.stdout"
+      failed_when:
+        - "'62443' not in _create_gpo.stdout"
+        - "'already exists' not in _create_gpo.stderr"
+    - name: Apply group policy registry values
+      ansible.windows.win_powershell:
+        script: |
+          [CmdletBinding()]
+          param (
+              [String]
+              $GPO,
+              [String]
+              $RegistryKey,
+              [String]
+              $ValueName,
+              [string]
+              $Type,
+              [String]
+              $DesiredValue
+          )
+
+          function Set-GPRegistryValueIdemPotent {
+              param (
+                [string]$GPO,
+                [string]$RegistryKey,
+                [string]$ValueName,
+                [string]$Type,
+                [string]$DesiredValue
+                )
+
+              # Get current value
+              try {
+                  $CurrentValue = Get-GPRegistryValue -Name $GPO -Key $RegistryKey -ValueName $ValueName
+                  $CurrentValue = $CurrentValue.Value
+              }
+              catch {
+                  $CurrentValue = $null
+              }
+
+              # If $CurrentValue == $DesiredValue, then return 'ok'
+              if ($CurrentValue -eq $DesiredValue) {
+                  return "ok"
+              }
+              # If $CurrentValue != $DesiredValue via 'else', then we need to change it
+              else {
+                  # If working with Dword, then convert to int
+                  if ($Type -eq 'DWord') {
+                      $DesiredValueConverted = [int]$DesiredValue
+                  }
+                  # If not DWord, then straight copy
+                  else {
+                      $DesiredValueConverted = $DesiredValue
+                  }
+                  # Set to desired value
+                  Set-GPRegistryValue -Name $GPO -Key $RegistryKey -ValueName $ValueName -Type $Type -Value $DesiredValueConverted
+                  return "changed"
+              }    
+          }
+
+          $Return = Set-GPRegistryValueIdemPotent -GPO $GPO -RegistryKey $RegistryKey -ValueName $ValueName -Type $Type -DesiredValue $DesiredValue
+
+          Write-Output $Return
+        parameters:
+          GPO: "{{ gpo_registry_value.gpo_name }}"
+          RegistryKey: "{{ gpo_registry_value.key }}"
+          ValueName: "{{ gpo_registry_value.value_name }}"
+          Type: "{{ gpo_registry_value.type }}"
+          DesiredValue: "{{ gpo_registry_value.value }}"
+      loop: "{{ gpo_registry_values }}"
+      loop_control:
+        loop_var: gpo_registry_value
+      register: _output
+      changed_when:
+        "'changed' in _output.output"

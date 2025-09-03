@@ -1,0 +1,18 @@
+---
+
+- name: Apply base config to all domain controllers
+  hosts:
+    - all
+  tasks:
+    - name: Ensure DNS servers are set to domain controllers
+      ansible.windows.win_dns_client:
+        adapter_names: "{{ bridge_network_interface.name }}"
+        dns_servers: "{{ active_directory.domain_controller_ips }}"
+    - name: Ensure SSDP/UPnP are started
+      ansible.windows.win_service:
+        name: "{{ item }}"
+        state: started
+        start_mode: auto
+      loop:
+        - SSDPSRV
+        - upnphost

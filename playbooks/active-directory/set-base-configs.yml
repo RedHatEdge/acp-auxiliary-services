@@ -1,0 +1,61 @@
+---
+
+- name: Set some basic system configs
+  hosts:
+    - all
+  tasks:
+    - name: Set the system hostname
+      ansible.windows.win_hostname:
+        name: "{{ inventory_hostname }}"
+      notify:
+        - reboot
+
+    - name: Configure static address on second interface
+      when:
+        - bridge_network_interface is defined
+      block:
+        - name: Check for IP address
+          ansible.windows.win_command: ipconfig
+          register: _ipconfig
+          changed_when: false
+
+        - name: Setup secondary interface
+          ansible.windows.win_powershell:
+            script: |
+              # Ingest variabless
+              [CmdletBinding()]
+              param (
+                  [String]
+                  $InterfaceName,
+                  [String]
+                  $IpAddress,
+                  [String]
+                  $SubnetMask,
+                  [String]
+                  $Gateway,
+                  [String]
+                  $DnsServers
+              )
+              # Disable DHCP
+              Set-NetIPInterface -InterfaceAlias $InterfaceName -Dhcp Disabled
+              # Set static Address
+              New-NetIPAddress -InterfaceAlias $InterfaceName -IPAddress $IpAddress -PrefixLength 24 -DefaultGateway $Gateway
+              # Set DNS Servers
+              Set-DnsClientServerAddress -InterfaceAlias $InterfaceName -ServerAddresses $DnsServers
+              # Confirm
+              Get-NetIPConfiguration -InterfaceAlias $InterfaceName
+            parameters:
+              InterfaceName: "{{ bridge_network_interface.name }}"
+              IpAddress: "{{ bridge_network_interface.ip_address }}"
+              SubnetMask: "{{ bridge_network_interface.subnet_mask }}"
+              Gateway: "{{ bridge_network_interface.gateway }}"
+              DnsServers: "{{ bridge_network_interface.dns_servers }}"
+          # when:
+          #   - "bridge_network_interface.ip_address not in _ipconfig.stdout"
+
+  handlers:
+    - name: Reboot system
+      ansible.windows.win_reboot:
+      listen:
+        - reboot
+      

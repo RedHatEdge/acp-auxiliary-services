@@ -1,0 +1,21 @@
+---
+
+- name: Join AD Domain
+  hosts:
+    - all
+  pre_tasks:
+    - name: Ensure DNS servers are set to domain controllers
+      ansible.windows.win_dns_client:
+        adapter_names: "{{ bridge_network_interface.name }}"
+        dns_servers: "{{ active_directory.domain_controller_ips }}"
+  tasks:
+    - name: Promote to domain controller
+      microsoft.ad.domain_controller:
+        dns_domain_name: "{{ active_directory.dns_domain_name }}"
+        domain_admin_user: 'Administrator@{{ active_directory.dns_domain_name }}'
+        domain_admin_password: "{{ ansible_password }}"
+        safe_mode_password: "{{ ansible_password }}"
+        state: domain_controller
+        reboot: true
+      retries: 5
+      delay: 60
