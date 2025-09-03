@@ -12,7 +12,7 @@
 
     - name: Configure static address on second interface
       when:
-        - bridge_network_interface is defined
+        - bridge_interface is defined
       block:
         - name: Check for IP address
           ansible.windows.win_command: ipconfig
@@ -50,8 +50,8 @@
               SubnetMask: "{{ bridge_network_interface.subnet_mask }}"
               Gateway: "{{ bridge_network_interface.gateway }}"
               DnsServers: "{{ bridge_network_interface.dns_servers }}"
-          # when:
-          #   - "bridge_network_interface.ip_address not in _ipconfig.stdout"
+          when:
+            - "bridge_interface.ip_address not in _ipconfig.stdout"
 
   handlers:
     - name: Reboot system
