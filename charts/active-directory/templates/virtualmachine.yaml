@@ -22,7 +22,7 @@ spec:
       spec:
         sourceRef:
           kind: DataSource
-          {{- with $.Values.activeDirectory.vmTemplate.datasource }}
+          {{- with $.Values.activeDirectory.vmTemplate.dataSource }}
           name: {{ .name }}
           namespace: {{ .namespace }}
           {{- end }}
