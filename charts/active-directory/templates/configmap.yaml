@@ -89,7 +89,7 @@ data:
         inventory: Active Directory Infrastructure
         organization: {{ $.Values.activeDirectory.itAutomationService.organization }}
         variables:
-          ansible_host: {{ .ipAddress }}
+          ansible_host: {{ .name }}-winrm.{{ $.Release.Namespace }}.svc.cluster.local
           bridge_interface:
             {{- with .bridgeInterface }}
             name: {{ quote .name }}
