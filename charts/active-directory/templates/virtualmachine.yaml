@@ -50,17 +50,6 @@ spec:
           cores: 1
           sockets: {{ .cpuCores | default "4" }}
           threads: 1
-        devices:
-          clock:
-            timer:
-              hpet:
-                present: false
-              hyperv: {}
-              pit:
-                tickPolicy: delay
-              rtc:
-                tickPolicy: catchup
-            utc: {}
         features:
           acpi: {}
           apic: {}
@@ -84,6 +73,17 @@ spec:
           bootloader:
             efi:
               secureBoot: true
+        devices:
+          clock:
+            timer:
+              hpet:
+                present: false
+              hyperv: {}
+              pit:
+                tickPolicy: delay
+              rtc:
+                tickPolicy: catchup
+            utc: {}
           disks:
             - disk:
                 bus: sata
