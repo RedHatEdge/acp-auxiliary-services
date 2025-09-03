@@ -35,7 +35,7 @@ spec:
                   name: aap-admin-password
                   key: password
             - name: LAST_RESORT_RESCUE
-              value: true
+              value: 'true'
       restartPolicy: OnFailure
       volumes:
         - name: inventory
