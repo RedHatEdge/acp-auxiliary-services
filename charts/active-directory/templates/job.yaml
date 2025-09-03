@@ -13,6 +13,7 @@ spec:
       containers:
         - name: configure-controller
           image: quay.io/jswanson/configure-aap:2.5
+          imagePullPolicy: Always
           volumeMounts:
             - name: inventory
               mountPath: /runner/inventory
@@ -33,6 +34,8 @@ spec:
                 secretKeyRef:
                   name: aap-admin-password
                   key: password
+            - name: LAST_RESORT_RESCUE
+              value: true
       restartPolicy: OnFailure
       volumes:
         - name: inventory
