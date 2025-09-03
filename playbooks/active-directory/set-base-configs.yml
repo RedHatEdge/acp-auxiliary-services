@@ -45,11 +45,11 @@
               # Confirm
               Get-NetIPConfiguration -InterfaceAlias $InterfaceName
             parameters:
-              InterfaceName: "{{ bridge_network_interface.name }}"
-              IpAddress: "{{ bridge_network_interface.ip_address }}"
-              SubnetMask: "{{ bridge_network_interface.subnet_mask }}"
-              Gateway: "{{ bridge_network_interface.gateway }}"
-              DnsServers: "{{ bridge_network_interface.dns_servers }}"
+              InterfaceName: "{{ bridge_interface.name }}"
+              IpAddress: "{{ bridge_interface.ip_address }}"
+              SubnetMask: "{{ bridge_interface.subnet_mask }}"
+              Gateway: "{{ bridge_interface.gateway }}"
+              DnsServers: "{{ bridge_interface.dns_servers }}"
           when:
             - "bridge_interface.ip_address not in _ipconfig.stdout"
 
