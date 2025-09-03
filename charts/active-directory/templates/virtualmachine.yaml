@@ -62,16 +62,6 @@ spec:
             efi:
               secureBoot: true
         devices:
-          clock:
-            timer:
-              hpet:
-                present: false
-              hyperv: {}
-              pit:
-                tickPolicy: delay
-              rtc:
-                tickPolicy: catchup
-            utc: {}
           disks:
             - disk:
                 bus: sata
