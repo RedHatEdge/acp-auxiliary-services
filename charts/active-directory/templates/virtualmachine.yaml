@@ -51,29 +51,39 @@ spec:
           sockets: {{ .cpuCores | default "4" }}
           threads: 1
         devices:
-          features:
-            acpi: {}
-            apic: {}
-            hyperv:
-              reenlightenment: {}
-              ipi: {}
-              synic: {}
-              synictimer:
-                direct: {}
-              spinlocks:
-                spinlocks: 8191
-              reset: {}
-              relaxed: {}
-              vpindex: {}
-              runtime: {}
-              tlbflush: {}
-              frequencies: {}
-              vapic: {}
-            smm: {}
-          firmware:
-            bootloader:
-              efi:
-                secureBoot: true
+          clock:
+            timer:
+              hpet:
+                present: false
+              hyperv: {}
+              pit:
+                tickPolicy: delay
+              rtc:
+                tickPolicy: catchup
+            utc: {}
+        features:
+          acpi: {}
+          apic: {}
+          hyperv:
+            reenlightenment: {}
+            ipi: {}
+            synic: {}
+            synictimer:
+              direct: {}
+            spinlocks:
+              spinlocks: 8191
+            reset: {}
+            relaxed: {}
+            vpindex: {}
+            runtime: {}
+            tlbflush: {}
+            frequencies: {}
+            vapic: {}
+          smm: {}
+        firmware:
+          bootloader:
+            efi:
+              secureBoot: true
           disks:
             - disk:
                 bus: sata
