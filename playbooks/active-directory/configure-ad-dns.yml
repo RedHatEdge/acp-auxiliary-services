@@ -16,5 +16,5 @@
         type: PTR
         value: "{{ ansible_hostname }}"
         zone: "{{ bridge_interface.ip_address.split('.')[2] }}.{{ bridge_interface.ip_address.split('.')[1] }}.{{ bridge_interface.ip_address.split('.')[0] }}.in-addr.arpa"
-      retries: 5
+      retries: 10
       delay: 60
