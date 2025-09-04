@@ -71,6 +71,9 @@ spec:
               name: tablet
               type: tablet
           interfaces:
+            - bridge: {}
+              model: e1000e
+              name: {{ .bridgeInterface.networkAttachmentDefinition }}
             - name: default
               masquerade: {}
               model: e1000e
@@ -80,9 +83,6 @@ spec:
                   protocol: TCP
                 - name: winrm
                   port: 5985
-            - bridge: {}
-              model: e1000e
-              name: {{ .bridgeInterface.networkAttachmentDefinition }}
         machine:
           type: pc-q35-rhel9.2.0
         memory:
