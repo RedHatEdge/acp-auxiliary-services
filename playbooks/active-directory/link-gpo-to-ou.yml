@@ -2,11 +2,14 @@
 
 - name: Link 62443-3-3 GPO to OU
   hosts:
-    - all
+    - primary_domain_controller
+  pre_tasks:
+    - name: Breakup domain components
+      ansible.builtin.set_fact:
+        _domain_components: "{{ dns_domain_name.split('.') }}"
   tasks:
-    # Lazy, update to take vars in the future
     - name: Link GPO
-      ansible.windows.win_shell: New-GPLink -Name "62443-3-3" -Target "'OU=IndustrialSoftware,DC=' + {{ dns_domain_name | split('.')[0] }} + ',DC=' + {{ dns_domain_name | split('.')[1] }}"
+      ansible.windows.win_shell: New-GPLink -Name "62443-3-3" -Target "'OU=IndustrialSoftware,DC={{ _domain_components[0] }},DC={{ _domain_components[1] }}"
       register: _link_ou
       changed_when:
         - "'already linked' not in _link_ou.stderr"
