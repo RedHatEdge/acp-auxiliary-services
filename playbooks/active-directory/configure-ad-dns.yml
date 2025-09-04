@@ -6,15 +6,15 @@
   tasks:
     - name: Create reverse lookup zone
       community.windows.win_dns_zone:
-        name: "{{ bridge_network_interface.ip_address.split('.')[2] }}.{{ bridge_network_interface.ip_address.split('.')[1] }}.{{ bridge_network_interface.ip_address.split('.')[0] }}.in-addr.arpa"
+        name: "{{ bridge_interface.ip_address.split('.')[2] }}.{{ bridge_interface.ip_address.split('.')[1] }}.{{ bridge_interface.ip_address.split('.')[0] }}.in-addr.arpa"
         type: primary
         replication: forest
       run_once: true
     - name: Put domain controllers PTR records in
       community.windows.win_dns_record:
-        name: "{{ bridge_network_interface.ip_address.split('.')[3] }}"
+        name: "{{ bridge_interface.ip_address.split('.')[3] }}"
         type: PTR
         value: "{{ ansible_hostname }}"
-        zone: "{{ bridge_network_interface.ip_address.split('.')[2] }}.{{ bridge_network_interface.ip_address.split('.')[1] }}.{{ bridge_network_interface.ip_address.split('.')[0] }}.in-addr.arpa"
+        zone: "{{ bridge_interface.ip_address.split('.')[2] }}.{{ bridge_interface.ip_address.split('.')[1] }}.{{ bridge_interface.ip_address.split('.')[0] }}.in-addr.arpa"
       retries: 5
       delay: 60
