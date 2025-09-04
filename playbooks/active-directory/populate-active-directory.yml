@@ -8,48 +8,52 @@
       organizational_units:
         - name: IndustrialSoftware
         - name: Areas
-          path: "OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Roles
-          path: "OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Users
-          path: "OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
       groups:
         - name: Area01_Basic
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area01_Advanced
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area02_Basic
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area02_Advanced
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area03_Basic
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area03_Advanced
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area04_Basic
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area04_Advanced
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area05_Basic
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Area05_Advanced
-          path: "OU=Areas,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Areas,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Operators
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Operating Supervisors
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Maintenance
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Maintenance Supervisors
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Manager
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Engineering
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: Software Administrator
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
         - name: HMI Approver
-          path: "OU=Roles,OU=IndustrialSoftware,DC={{ dns_domain_name | split('.')[0] }},DC={{ dns_domain_name | split('.')[1] }}"
+          path: "OU=Roles,OU=IndustrialSoftware,DC={{ active_directory.dns_domain_name | split('.')[0] }},DC={{ active_directory.dns_domain_name | split('.')[1] }}"
+  pre_tasks:
+    - name: Breakup domain components
+      ansible.builtin.set_fact:
+        _domain_components: "{{ active_directory.dns_domain_name | split('.') }}"
   tasks:
     - name: Create organizational units
       microsoft.ad.ou:
