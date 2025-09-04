@@ -32,6 +32,7 @@ data:
     ---
     aap_organizations:
       - name: {{ .itAutomationService.organization }}
+         galaxy_credentials: Ansible Galaxy
 
   credentials.yml: |
     ---
