@@ -10,6 +10,19 @@
       notify:
         - reboot
 
+    - name: Prevent registration of "internal" interface IP address
+      ansible.windows.win_powershell:
+        script: |
+          [CmdletBinding()]
+          param (
+              [String]
+              $InterfaceName,        
+              )
+
+          Set-DnsClient -InterfaceAlias $InterfaceName -RegisterThisConnectionAddress $false
+        parameters:
+          InterfaceName: "{{ internal_interface.name }}"
+
     - name: Configure static address on second interface
       when:
         - bridge_interface is defined
