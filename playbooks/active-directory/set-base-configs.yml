@@ -16,7 +16,7 @@
           [CmdletBinding()]
           param (
               [String]
-              $InterfaceName,        
+              $InterfaceName
               )
 
           Write-Host "Turning off registration in DNS for interface $InterfaceName..."
