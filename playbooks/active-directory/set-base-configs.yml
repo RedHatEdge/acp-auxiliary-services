@@ -21,7 +21,7 @@
 
           Write-Host "Turning off registration in DNS for interface $InterfaceName..."
           Set-DnsClient -InterfaceAlias $InterfaceName -RegisterThisConnectionsAddress $false
-                                                        
+
           Write-Host "Set DNS even on internal interface $InterfaceName..."
           Set-DnsClientServerAddress -InterfaceAlias $InterfaceName -ServerAddresses $DnsServers
         parameters:
