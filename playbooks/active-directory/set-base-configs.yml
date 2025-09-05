@@ -19,6 +19,7 @@
               $InterfaceName,        
               )
 
+          Write-Host "Turning off registration in DNS for interface $InterfaceName..."
           Set-DnsClient -InterfaceAlias $InterfaceName -RegisterThisConnectionAddress $false
         parameters:
           InterfaceName: "{{ internal_interface.name }}"
