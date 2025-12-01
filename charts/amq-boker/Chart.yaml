@@ -1,0 +1,17 @@
+# **************************************************************
+# This helm chart deploys RedHat AMQ Broker on Openshift
+#
+# **************************************************************
+apiVersion: v2
+
+# name of the helm chart
+name: amq-broker
+
+# Chart type values ["application", "library"]
+type: application
+
+# Application version
+appVersion: 1.0.0
+
+# chart version
+version: 1.0.0
