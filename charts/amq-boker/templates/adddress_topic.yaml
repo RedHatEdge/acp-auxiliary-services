@@ -1,0 +1,13 @@
+---
+# address_topic.yaml
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemisAddress
+metadata:
+  name: {{ $.Values.topic.name }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  addressName: {{ $.Values.topic.addressName }}
+  routingType: {{ $.Values.topic.routingType }}
+  removeFromBrokerOnDelete: {{ $.Values.topic.removeFromBrokerOnDelete }}

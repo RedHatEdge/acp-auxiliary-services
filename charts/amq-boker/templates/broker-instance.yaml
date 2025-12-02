@@ -1,0 +1,23 @@
+---
+# broker-instance.yaml
+apiVersion: broker.amq.io/v1beta1
+kind: ActiveMQArtemis
+metadata:
+  name: {{ $.Values.broker.name }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  deploymentPlan:
+    size: {{ $.Values.deployment.size }} # Number of broker pods
+    image: {{ $.Values.deployment.image }} # Or specify version
+    jolokiaAgentEnabled: {{ $.Values.deployment.jolokiaAgentEnabled }}
+    journalType: {{ $.Values.deployment.journalType }}
+    managementRBACEnabled: {{ $.Values.deployment.managementRBACEnabled }}
+    messageMigration: {{ $.Values.deployment.messageMigration }}
+    persistenceEnabled: {{ $.Values.deployment.persistenceEnabled }}
+    requireLogin: {{ $.Values.deployment.requireLogin }} # Set to true and configure secrets for production
+  brokerProperties:
+  {{- range .Values.brokerProperties }}
+  - {{ . }}
+  {{- end }}
